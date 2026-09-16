@@ -7,51 +7,84 @@ set -euo pipefail
 
 REPO_URL="https://github.com/senapati484/master-skill.git"
 SKILL_NAME="master-skill"
+VERSION="1.0.0"
 
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+# Modern Palette (24-bit TrueColor with ANSI capability)
+CYAN='\033[38;2;56;189;248m'
+VIOLET='\033[38;2;168;85;247m'
+EMERALD='\033[38;2;52;211;153m'
+AMBER='\033[38;2;251;191;36m'
+GRAY='\033[38;2;148;163;184m'
+DARKGRAY='\033[38;2;71;85;105m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
 
-echo -e "${BLUE}======================================================${NC}"
-echo -e "${BLUE}   Installing master-skill (AI Agent Master Workflow) ${NC}"
-echo -e "${BLUE}======================================================${NC}"
+# Fallback if terminal doesn't support 24-bit colors
+if [[ "${COLORTERM:-}" != "truecolor" && "${COLORTERM:-}" != "24bit" && "${TERM:-}" != *"256color"* ]]; then
+  CYAN='\033[0;36m'
+  VIOLET='\033[0;35m'
+  EMERALD='\033[0;32m'
+  AMBER='\033[0;33m'
+  GRAY='\033[0;37m'
+  DARKGRAY='\033[1;30m'
+fi
+
+# Print ASCII Slant Typography Banner
+echo ""
+echo -e "${CYAN}${BOLD}"
+cat << "EOF"
+    __  ___           __               _____ __   _ ____
+   /  |/  /___ ______/ /____  _____   / ___// /__(_) / /
+  / /|_/ / __ `/ ___/ __/ _ \/ ___/   \__ \/ //_/ / / / 
+ / /  / / /_/ (__  ) /_/  __/ /      ___/ / ,< / / / /  
+/_/  /_/\__,_/____/\__/\___/_/      /____/_/|_/_/_/_/   
+EOF
+echo -e "${RESET}"
+echo -e "  ${VIOLET}✦${RESET} ${BOLD}master-skill${RESET} ${GRAY}— Disciplined AI Agent Workflow Harness${RESET} ${DARKGRAY}(v${VERSION})${RESET}"
+echo -e "  ${DARKGRAY}────────────────────────────────────────────────────────────${RESET}"
+echo ""
 
 # Parse arguments
 TARGET_MODE="auto"
+TARGET_LABEL="Auto-Detect (All Active Agents)"
+
 if [[ $# -gt 0 ]]; then
   case "$1" in
     --project)
       TARGET_MODE="project"
+      TARGET_LABEL="Project-Local (.agents/skills/master-skill)"
       ;;
     --claude)
       TARGET_MODE="claude"
+      TARGET_LABEL="Claude Code (~/.claude/skills)"
       ;;
     --antigravity|--gemini)
       TARGET_MODE="antigravity"
+      TARGET_LABEL="Google Antigravity (~/.gemini/config/skills)"
       ;;
     --agents|--cursor)
       TARGET_MODE="agents"
+      TARGET_LABEL="Agents / Cursor (~/.agents/skills)"
       ;;
     --all)
       TARGET_MODE="all"
+      TARGET_LABEL="All Environments"
       ;;
     -h|--help)
-      echo "Usage: install.sh [OPTION]"
+      echo -e "${BOLD}Usage:${RESET} install.sh [OPTION]"
       echo ""
-      echo "Options:"
-      echo "  --all            Install to all detected agent directories (default)"
-      echo "  --project        Install to current project (.agents/skills/master-skill)"
-      echo "  --claude         Install only to Claude Code (~/.claude/skills)"
-      echo "  --antigravity    Install only to Antigravity (~/.gemini/config/skills)"
-      echo "  --agents         Install only to Agents standard (~/.agents/skills)"
-      echo "  -h, --help       Display this help message"
+      echo -e "${BOLD}Options:${RESET}"
+      echo -e "  ${CYAN}--all${RESET}            Install to all detected agent directories (default)"
+      echo -e "  ${CYAN}--project${RESET}        Install to current project (.agents/skills/master-skill)"
+      echo -e "  ${CYAN}--claude${RESET}         Install only to Claude Code (~/.claude/skills)"
+      echo -e "  ${CYAN}--antigravity${RESET}    Install only to Antigravity (~/.gemini/config/skills)"
+      echo -e "  ${CYAN}--agents${RESET}         Install only to Agents standard (~/.agents/skills)"
+      echo -e "  ${CYAN}-h, --help${RESET}       Display this help message"
       exit 0
       ;;
     *)
-      echo -e "${YELLOW}Unknown option: $1. Falling back to auto detection.${NC}"
+      echo -e "  ${AMBER}▲ Unknown option: $1. Falling back to auto-detection.${RESET}"
       ;;
   esac
 fi
@@ -71,15 +104,21 @@ cleanup() {
 }
 trap cleanup EXIT
 
+echo -e "  ${CYAN}◆${RESET} ${BOLD}Mode:${RESET}   ${GRAY}${TARGET_LABEL}${RESET}"
+
 if [[ -n "$SCRIPT_DIR" && -f "$SCRIPT_DIR/SKILL.md" && -d "$SCRIPT_DIR/references" ]]; then
   SRC_DIR="$SCRIPT_DIR"
-  echo -e "Source: ${GREEN}Local directory ($SRC_DIR)${NC}"
+  echo -e "  ${CYAN}◆${RESET} ${BOLD}Source:${RESET} ${GRAY}Local Repository (${SRC_DIR})${RESET}"
 else
   TEMP_DIR="$(mktemp -d)"
-  echo -e "Fetching latest release from ${BLUE}$REPO_URL${NC}..."
+  echo -e "  ${CYAN}◆${RESET} ${BOLD}Source:${RESET} ${GRAY}Remote Release (${REPO_URL})${RESET}"
+  echo ""
+  echo -e "  ${GRAY}● Fetching latest release artifacts...${RESET}"
   git clone --depth 1 "$REPO_URL" "$TEMP_DIR" >/dev/null 2>&1
   SRC_DIR="$TEMP_DIR"
 fi
+
+echo ""
 
 install_to_dir() {
   local dest="$1"
@@ -88,13 +127,14 @@ install_to_dir() {
   cp "$SRC_DIR/SKILL.md" "$dest/SKILL.md"
   rm -rf "$dest/references"
   cp -r "$SRC_DIR/references" "$dest/references"
-  echo -e "  ${GREEN}✓${NC} Installed to ${label} (${BLUE}$dest${NC})"
+  echo -e "  ${EMERALD}✔${RESET} ${BOLD}Installed to ${label}${RESET}"
+  echo -e "    ${DARKGRAY}↳ ${dest}${RESET}"
 }
 
 INSTALLED_COUNT=0
 
 if [[ "$TARGET_MODE" == "project" ]]; then
-  install_to_dir ".agents/skills/$SKILL_NAME" "Project (.agents/skills)"
+  install_to_dir ".agents/skills/$SKILL_NAME" "Project Repository (.agents/skills)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 else
   # Claude Code target
@@ -128,7 +168,17 @@ else
   fi
 fi
 
+TARGET_WORD="targets"
+if [[ $INSTALLED_COUNT -eq 1 ]]; then
+  TARGET_WORD="target"
+fi
+
 echo ""
-echo -e "${GREEN}Installation complete! ($INSTALLED_COUNT targets updated)${NC}"
-echo -e "The ${BLUE}master-skill${NC} is now active and ready for your AI agent."
-echo -e "To verify, start or restart your coding agent session and ask it to review any task."
+echo -e "  ${DARKGRAY}┌──────────────────────────────────────────────────────────┐${RESET}"
+echo -e "  ${DARKGRAY}│${RESET}  ${EMERALD}${BOLD}✔ Successfully Activated!${RESET} ${GRAY}(${INSTALLED_COUNT} agent ${TARGET_WORD} updated)${RESET}     ${DARKGRAY}│${RESET}"
+echo -e "  ${DARKGRAY}└──────────────────────────────────────────────────────────┘${RESET}"
+echo ""
+echo -e "  ${BOLD}⚡ How to use:${RESET}"
+echo -e "     ${GRAY}Start or reload your coding agent and say:${RESET}"
+echo -e "     ${CYAN}${BOLD}\"Plan this task using master-skill\"${RESET}"
+echo ""
