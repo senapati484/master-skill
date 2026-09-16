@@ -11,34 +11,56 @@ shared across the most-used community skill frameworks (obra/superpowers
 and related collections) into one easy-to-install folder instead of a dozen
 separate plugins.
 
-## Install
+## Quick Install (One-Line Command)
 
-### Claude Code
-Copy this folder into your skills directory:
-```
-cp -r master-skill ~/.claude/skills/master-skill
-```
-Restart Claude Code (or start a new session) — it loads automatically.
+Run this single command in your terminal to automatically detect and install `master-skill` for **all** your installed AI coding agents (Claude Code, Antigravity, Cursor, Codex, Gemini CLI):
 
-### Codex / Copilot CLI / Gemini CLI
-These also read `~/.agents/skills/` as a shared path:
-```
-cp -r master-skill ~/.agents/skills/master-skill
+```bash
+curl -fsSL https://raw.githubusercontent.com/senapati484/master-skill/main/install.sh | bash
 ```
 
-### Cursor / OpenCode / Antigravity
-Drop the folder into whatever skills/plugin directory your version of the
-tool watches (check its docs — most have converged on `SKILL.md` with YAML
-frontmatter as the standard format, per the agentskills.io spec). If the
-tool supports project-local skills, you can also place it inside your repo
-at `.claude/skills/master-skill/` (or the equivalent) so it travels with the
-project instead of being global.
+### Install to Specific Target or Current Project
 
-### Project-local (any agent, any tool)
-Put it in the repo itself and reference it from `CLAUDE.md` / `AGENTS.md`:
+```bash
+# Install to current project repository only (.agents/skills/master-skill)
+curl -fsSL https://raw.githubusercontent.com/senapati484/master-skill/main/install.sh | bash -s -- --project
+
+# Install only for Claude Code (~/.claude/skills)
+curl -fsSL https://raw.githubusercontent.com/senapati484/master-skill/main/install.sh | bash -s -- --claude
+
+# Install only for Antigravity (~/.gemini/config/skills)
+curl -fsSL https://raw.githubusercontent.com/senapati484/master-skill/main/install.sh | bash -s -- --antigravity
+
+# Install only for Cursor / Codex / Agents (~/.agents/skills)
+curl -fsSL https://raw.githubusercontent.com/senapati484/master-skill/main/install.sh | bash -s -- --agents
 ```
-.claude/skills/master-skill/SKILL.md
+
+### From Local Clone
+
+If you have cloned this repository locally, simply run:
+```bash
+./install.sh
 ```
+
+### Manual Installation (Alternative)
+
+If you prefer to clone or copy manually:
+
+- **Claude Code**:
+  ```bash
+  git clone https://github.com/senapati484/master-skill.git ~/.claude/skills/master-skill
+  ```
+- **Antigravity**:
+  ```bash
+  git clone https://github.com/senapati484/master-skill.git ~/.gemini/config/skills/master-skill
+  ```
+- **Cursor / Codex / Gemini CLI**:
+  ```bash
+  git clone https://github.com/senapati484/master-skill.git ~/.agents/skills/master-skill
+  ```
+- **Project-Local (Any Agent)**:
+  Copy into `.agents/skills/master-skill/` or `.claude/skills/master-skill/` in your repository root and reference it from `CLAUDE.md`, `AGENTS.md`, or `GEMINI.md`.
+
 
 ## How It Works
 
